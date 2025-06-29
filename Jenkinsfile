@@ -61,7 +61,7 @@ pipeline {
                     curl -u ${NEXUS_CREDS} \
                          -X POST "${NEXUS_URL}/repository/${NEXUS_REPO}/" \
                          -H "Content-Type: application/gzip" \
-                         --data-binary "@kaddem-front-${BUILD_NUMBER}.tar.gz"
+                         --data-binary "@kaddem-front-latest.tar.gz"
                     """
 
                     // Nettoyage
