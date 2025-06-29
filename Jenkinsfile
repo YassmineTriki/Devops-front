@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     environment {
+            SONAR_TOKEN = credentials('sonar-token') // Créez cette credential dans Jenkins
+
         IMAGE_NAME = 'yasmine251/kaddemback'
         IMAGE_TAG = 'latest'
         DOCKER_REGISTRY = 'docker.io' // exemple: 'dockerhub' ou vide si pas de push
@@ -32,7 +34,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                 sh 'npx sonar-scanner -Dsonar.projectKey=devopsfront -Dsonar.sources=src'
+                    sh '''
+                    npx sonar-scanner \
+                        -Dsonar.projectKey=devopsfront \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.sources=src
+                    '''
                 }
             }
         }
