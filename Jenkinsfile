@@ -36,12 +36,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh """ npx sonar-scanner \
-                        -Dsonar.projectKey=devopsfront \
-                        -Dsonar.login=${SONAR_TOKEN} \  # <-- Ici le nouveau token
-                        -Dsonar.sources=src \
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    """
+                    sh 'npx sonar-scanner ' +
+                    '-Dsonar.projectKey=devopsfront ' +
+                    /* groovylint-disable-next-line GStringExpressionWithinString */
+                    '-Dsonar.login=${SONAR_TOKEN} ' +
+                    '-Dsonar.sources=src ' +
+                    '-Dsonar.javascript.lcov.reportPaths=coverage/lcov.info'
                 }
             }
         }
