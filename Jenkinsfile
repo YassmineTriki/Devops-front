@@ -91,7 +91,7 @@ pipeline {
 
                 docker.build(imageName)
 
-                docker.withRegistry('https://index.docker.io/v1/', 'dcred_docker') {
+                docker.withRegistry('https://index.docker.io/v1/', 'cred_docker') {
                     docker.image(imageName).push()
                 }
                 }
