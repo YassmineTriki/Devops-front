@@ -2,7 +2,10 @@ pipeline {
     agent any
 
     environment {
-        
+        IMAGE_NAME = 'yasmine251/kaddemback'
+        IMAGE_TAG = 'latest'
+        DOCKER_REGISTRY = 'docker.io' // exemple: 'dockerhub' ou vide si pas de push
+        DOCKER_HUB_CREDENTALS = credentials('cred_docker')
     }
 
     stages {
@@ -29,10 +32,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=devopsfront'
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
                 }
             }
         }
-
     }
 }
