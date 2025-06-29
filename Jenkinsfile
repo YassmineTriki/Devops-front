@@ -83,7 +83,7 @@ pipeline {
                             file: "${pkg.name}-${pkg.version}.${BUILD_NUMBER}.tar.gz",
                             type: 'tar.gz'
                         ]],
-                        credentialsId: 'nexus-creds',
+                        credentialsId: 'front-nexus',
                         nexusUrl: 'http://localhost:8081',
                         repository: 'frontend-repo'
                     )
