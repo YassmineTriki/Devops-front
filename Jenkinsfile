@@ -66,24 +66,38 @@ pipeline {
             }
         }
       
-stage('Upload Front to Nexus') {
-  steps {
-    script {
-      def nexusRawRepoUrl = 'http://localhost:8081/repository/front-devops/'
-      def distDir = 'dist/' // ou le chemin vers ton build front
-      def credentialsId = 'front-nexus' // ID Jenkins des credentials Nexus
+        stage('Upload Front to Nexus') {
+            steps {
+                script {
+                def nexusRawRepoUrl = 'http://localhost:8081/repository/front-devops/'
+                def distDir = 'dist/' // ou le chemin vers ton build front
+                def credentialsId = 'front-nexus' // ID Jenkins des credentials Nexus
 
-      withCredentials([usernamePassword(credentialsId: credentialsId, passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
-        sh """
-          find ${distDir} -type f | while read file; do
-            relativePath=\$(realpath --relative-to=${distDir} "\$file")
-            curl -u "$NEXUS_USER:$NEXUS_PASS" --upload-file "\$file" "$nexusRawRepoUrl\$relativePath"
-          done
-        """
-      }
-    }
-  }
-}
+                withCredentials([usernamePassword(credentialsId: credentialsId, passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
+                    sh """
+                    find ${distDir} -type f | while read file; do
+                        relativePath=\$(realpath --relative-to=${distDir} "\$file")
+                        curl -u "$NEXUS_USER:$NEXUS_PASS" --upload-file "\$file" "$nexusRawRepoUrl\$relativePath"
+                    done
+                    """
+                }
+                }
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                def imageName = "yasmine251/front-devops:${env.BUILD_ID}"
+
+                docker.build(imageName)
+
+                docker.withRegistry('https://index.docker.io/v1/', 'dcred_docker') {
+                    docker.image(imageName).push()
+                }
+                }
+            }
+        }
+
 
     }
 }
