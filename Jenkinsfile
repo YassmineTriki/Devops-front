@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    tools {
+        nodejs 'NodeJS-20' // Configurez cette tool dans Jenkins
+    }
     environment {
             SONAR_TOKEN = credentials('sonar-token') // Créez cette credential dans Jenkins
 
