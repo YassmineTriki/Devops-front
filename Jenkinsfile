@@ -79,13 +79,18 @@ pipeline {
                     // 3. Upload minimaliste avec gestion d'erreur intégrée
                     nexusArtifactUploader(
                         artifacts: [[
-                            artifactId: pkg.name,
-                            file: "${pkg.name}-${pkg.version}.${BUILD_NUMBER}.tar.gz",
-                            type: 'tar.gz'
-                        ]],
-                        credentialsId: 'front-nexus',
-                        nexusUrl: 'http://localhost:8081',
-                        repository: 'frontend-repo'
+                                artifactId: pkg.name,
+                                file: artifactFile,
+                                type: 'tar.gz',
+                                classifier: 'dist'
+                            ]],
+                            credentialsId: 'front-nexus',
+                            groupId: "tn.esprit.${pkg.name}",
+                            nexusUrl: 'http://localhost:8081',
+                            nexusVersion: 'nexus3', // Ce paramètre est CRUCIAL
+                            protocol: 'http',
+                            repository: 'front-devops',
+                            version: "${pkg.version}.${BUILD_NUMBER}"
                     )
                 }
             }
