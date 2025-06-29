@@ -50,29 +50,37 @@ pipeline {
             }
         }*/
 
-       stage('Package and Push to Nexus') {
-    steps {
-        script {
-            // Vérifier que le dossier dist existe
-            sh 'test -d dist/ || (echo "ERROR: dist directory not found" && exit 1)'
-            
-            // Créer l'archive avec le numéro de build
-            sh 'tar -czf kaddem-front-${BUILD_NUMBER}.tar.gz -C dist/ .'
-            
-            // Envoyer à Nexus de manière sécurisée
-            withCredentials([usernamePassword(credentialsId: 'front-nexus', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
-                sh '''
-                    curl -u "$NEXUS_USER:$NEXUS_PASS" \
-                         -X POST "${NEXUS_URL}/repository/${NEXUS_REPO}/" \
-                         -H "Content-Type: application/gzip" \
-                         --data-binary "@kaddem-front-${BUILD_NUMBER}.tar.gz"
-                '''
+        stage('Package and Push to Nexus') {
+            steps {
+                script {
+                    // 1. Vérifier que le dossier dist existe
+                    sh 'ls -la dist/ || { echo "ERREUR: Dossier dist introuvable"; exit 1; }'
+                    
+                    // 2. Créer l'archive avec un nom clair
+                    def artifactName = "kaddem-front-${BUILD_NUMBER}.tar.gz"
+                    sh "tar -czf ${artifactName} -C dist/ ."
+                    
+                    // 3. Debug: Vérifier que le fichier existe
+                    sh "ls -lh ${artifactName}"
+                    
+                    // 4. Upload vers Nexus avec authentification sécurisée
+                    withCredentials([usernamePassword(
+                        credentialsId: 'front-nexus',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )]) {
+                        sh '''
+                            curl -v -u \${NEXUS_USER}:\${NEXUS_PASS} \
+                                -X POST "${NEXUS_URL}/repository/${NEXUS_REPO}/" \
+                                -H "Content-Type: application/gzip" \
+                                --data-binary "@${artifactName}"
+                        '''
+                    }
+                    
+                    // 5. Nettoyage
+                    sh "rm ${artifactName}"
+                }
             }
-            
-            // Nettoyage
-            sh 'rm kaddem-front-${BUILD_NUMBER}.tar.gz'
         }
-    }
-}
     }
 }
