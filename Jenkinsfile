@@ -4,7 +4,7 @@ pipeline {
         nodejs 'Node-24' // Configurez cette tool dans Jenkins
     }
     environment {
-            SONAR_TOKEN = credentials('sonar-token') // Créez cette credential dans Jenkins
+            SONAR_TOKEN = credentials('sonar-token-front') // Créez cette credential dans Jenkins
 
         IMAGE_NAME = 'yasmine251/kaddemback'
         IMAGE_TAG = 'latest'
@@ -35,8 +35,13 @@ pipeline {
         // Étape 4: Analyse SonarQube
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube-Server') {  // Utilise le même nom que pour le back
-                    sh 'npx sonar-scanner -Dsonar.projectKey=devopsfront -Dsonar.sources=src'
+                withSonarQubeEnv('SonarQube-Server') {
+                    sh """ npx sonar-scanner \
+                        -Dsonar.projectKey=devopsfront \
+                        -Dsonar.login=${SONAR_TOKEN} \  # <-- Ici le nouveau token
+                        -Dsonar.sources=src \
+                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                    """
                 }
             }
         }
