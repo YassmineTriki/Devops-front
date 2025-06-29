@@ -65,34 +65,25 @@ pipeline {
                 }
             }
         }
-       stage('Deploy to Nexus') {
-            steps {
-                script {
-                    // 1. Lecture directe du package.json
-                    def pkg = readJSON file: 'package.json'
-                    
-                    // 2. Création de l'artefact en une seule commande
-                    sh """
-                        tar -czf ${pkg.name}-${pkg.version}.${BUILD_NUMBER}.tar.gz -C dist/${pkg.name}/ .
-                    """
-                    
-                    // 3. Upload minimaliste avec gestion d'erreur intégrée
-                    nexusArtifactUploader(
-                        artifacts: [[
-                                artifactId: pkg.name,
-                                type: 'tar.gz',
-                                classifier: 'dist'
-                            ]],
-                            credentialsId: 'front-nexus',
-                            groupId: "tn.esprit.${pkg.name}",
-                            nexusUrl: 'http://localhost:8081',
-                            nexusVersion: 'nexus3', // Ce paramètre est CRUCIAL
-                            protocol: 'http',
-                            repository: 'front-devops',
-                            version: "${pkg.version}.${BUILD_NUMBER}"
-                    )
-                }
-            }
-        }
+      
+stage('Upload Front to Nexus') {
+  steps {
+    script {
+      def nexusRawRepoUrl = 'http://localhost:8081/repository/front-devops/'
+      def distDir = 'dist/' // ou le chemin vers ton build front
+      def credentialsId = 'front-nexus' // ID Jenkins des credentials Nexus
+
+      withCredentials([usernamePassword(credentialsId: credentialsId, passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
+        sh """
+          find ${distDir} -type f | while read file; do
+            relativePath=\$(realpath --relative-to=${distDir} "\$file")
+            curl -u "$NEXUS_USER:$NEXUS_PASS" --upload-file "\$file" "$nexusRawRepoUrl\$relativePath"
+          done
+        """
+      }
+    }
+  }
+}
+
     }
 }
