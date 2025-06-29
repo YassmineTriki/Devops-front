@@ -37,7 +37,6 @@ pipeline {
                     sh '''
                     npx sonar-scanner \
                         -Dsonar.projectKey=devopsfront \
-                        -Dsonar.login=${SONAR_TOKEN} \
                         -Dsonar.sources=src
                     '''
                 }
