@@ -32,7 +32,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=devopsfront'
                 }
             }
         }
