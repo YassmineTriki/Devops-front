@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        nodejs 'NodeJS-20' // Configurez cette tool dans Jenkins
+        nodejs 'Node-24' // Configurez cette tool dans Jenkins
     }
     environment {
             SONAR_TOKEN = credentials('sonar-token') // Créez cette credential dans Jenkins
@@ -35,12 +35,8 @@ pipeline {
         // Étape 4: Analyse SonarQube
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube-Server') {
-                    sh '''
-                    npx sonar-scanner \
-                        -Dsonar.projectKey=devopsfront \
-                        -Dsonar.sources=src
-                    '''
+                withSonarQubeEnv('SonarQube-Server') {  // Utilise le même nom que pour le back
+                    sh 'npx sonar-scanner -Dsonar.projectKey=devopsfront -Dsonar.sources=src'
                 }
             }
         }
