@@ -32,7 +32,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=devopsfront'
+                 sh 'npx sonar-scanner'
                 }
             }
         }
