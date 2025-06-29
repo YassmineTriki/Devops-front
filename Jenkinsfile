@@ -50,35 +50,43 @@ pipeline {
             }
         }*/
 
-        stage('Package and Push to Nexus') {
+        stage('Package') {
             steps {
                 script {
-                    // 1. Vérifier que le dossier dist existe
-                    sh 'ls -la dist/ || { echo "ERREUR: Dossier dist introuvable"; exit 1; }'
+                    // Version sémantique + numéro de build
+                    FRONTEND_VERSION = "1.0.0.${BUILD_NUMBER}" 
+                    ARTIFACT_NAME = "kaddem-frontend-${FRONTEND_VERSION}.tar.gz"
                     
-                    // 2. Créer l'archive avec un nom clair
-                    def artifactName = "kaddem-front-${BUILD_NUMBER}.tar.gz"
-                    sh "tar -czf ${artifactName} -C dist/ ."
+                    // Création de l'archive
+                    sh """
+                        tar -czvf ${ARTIFACT_NAME} -C dist/ .
+                        ls -lh ${ARTIFACT_NAME}  # Vérification
+                    """
+                }
+            }
+        }
+       stage('Deploy to Nexus') {
+            steps {
+                script {
+                    // 1. Lecture directe du package.json
+                    def pkg = readJSON file: 'package.json'
                     
-                    // 3. Debug: Vérifier que le fichier existe
-                    sh "ls -lh ${artifactName}"
+                    // 2. Création de l'artefact en une seule commande
+                    sh """
+                        tar -czf ${pkg.name}-${pkg.version}.${BUILD_NUMBER}.tar.gz -C dist/${pkg.name}/ .
+                    """
                     
-                    // 4. Upload vers Nexus avec authentification sécurisée
-                    withCredentials([usernamePassword(
-                        credentialsId: 'front-nexus',
-                        usernameVariable: 'NEXUS_USER',
-                        passwordVariable: 'NEXUS_PASS'
-                    )]) {
-                        sh '''
-                            curl -v -u \${NEXUS_USER}:\${NEXUS_PASS} \
-                                -X POST "${NEXUS_URL}/repository/${NEXUS_REPO}/" \
-                                -H "Content-Type: application/gzip" \
-                                --data-binary "@${artifactName}"
-                        '''
-                    }
-                    
-                    // 5. Nettoyage
-                    sh "rm ${artifactName}"
+                    // 3. Upload minimaliste avec gestion d'erreur intégrée
+                    nexusArtifactUploader(
+                        artifacts: [[
+                            artifactId: pkg.name,
+                            file: "${pkg.name}-${pkg.version}.${BUILD_NUMBER}.tar.gz",
+                            type: 'tar.gz'
+                        ]],
+                        credentialsId: 'nexus-creds',
+                        nexusUrl: 'http://localhost:8081',
+                        repository: 'frontend-repo'
+                    )
                 }
             }
         }
