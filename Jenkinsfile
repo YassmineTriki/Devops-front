@@ -37,7 +37,7 @@ pipeline {
         }
 
         // Étape 4: Analyse SonarQube
-        /*stage('SonarQube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
                     sh 'npx sonar-scanner ' +
@@ -48,7 +48,7 @@ pipeline {
                     '-Dsonar.javascript.lcov.reportPaths=coverage/lcov.info'
                 }
             }
-        }*/
+        }
 
         stage('Package') {
             steps {
