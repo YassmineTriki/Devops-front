@@ -80,7 +80,6 @@ pipeline {
                     nexusArtifactUploader(
                         artifacts: [[
                                 artifactId: pkg.name,
-                                file: artifactFile,
                                 type: 'tar.gz',
                                 classifier: 'dist'
                             ]],
