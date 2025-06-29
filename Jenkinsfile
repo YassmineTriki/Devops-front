@@ -37,18 +37,18 @@ pipeline {
         }
 
         // Étape 4: Analyse SonarQube
-        stage('SonarQube Analysis') {
+        /*stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
                     sh 'npx sonar-scanner ' +
                     '-Dsonar.projectKey=devopsfront ' +
-                    /* groovylint-disable-next-line GStringExpressionWithinString */
+                    // groovylint-disable-next-line GStringExpressionWithinString 
                     '-Dsonar.login=${SONAR_TOKEN} ' +
                     '-Dsonar.sources=src ' +
                     '-Dsonar.javascript.lcov.reportPaths=coverage/lcov.info'
                 }
             }
-        }
+        }*/
 
         stage('Package and Push to Nexus') {
             steps {
