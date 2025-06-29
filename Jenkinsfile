@@ -4,8 +4,11 @@ pipeline {
         nodejs 'Node-24' // Configurez cette tool dans Jenkins
     }
     environment {
-            SONAR_TOKEN = credentials('sonar-token-front') // Créez cette credential dans Jenkins
-
+        SONAR_TOKEN = credentials('sonar-token-front') // Créez cette credential dans Jenkins
+        NEXUS_URL = 'http://localhost:8081/'
+        NEXUS_REPO = 'front-devops'
+        NEXUS_CREDS = credentials('front-nexus') // ID des credentials dans Jenkins
+    
         IMAGE_NAME = 'yasmine251/kaddemback'
         IMAGE_TAG = 'latest'
         DOCKER_REGISTRY = 'docker.io' // exemple: 'dockerhub' ou vide si pas de push
@@ -42,6 +45,26 @@ pipeline {
                     '-Dsonar.login=${SONAR_TOKEN} ' +
                     '-Dsonar.sources=src ' +
                     '-Dsonar.javascript.lcov.reportPaths=coverage/lcov.info'
+                }
+            }
+        }
+
+        stage('Package and Push to Nexus') {
+            steps {
+                script {
+                    // Création de l'archive
+                    sh 'tar -czf kaddem-front-${BUILD_NUMBER}.tar.gz -C dist/ .'
+
+                    // Envoi vers Nexus
+                    sh """
+                    curl -u ${NEXUS_CREDS} \
+                         -X POST "${NEXUS_URL}/repository/${NEXUS_REPO}/" \
+                         -H "Content-Type: application/gzip" \
+                         --data-binary "@kaddem-front-${BUILD_NUMBER}.tar.gz"
+                    """
+
+                    // Nettoyage
+                    sh 'rm kaddem-front-${BUILD_NUMBER}.tar.gz'
                 }
             }
         }
