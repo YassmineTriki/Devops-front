@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONAR_SCANNER_HOME = tool 'SonarScanner'
+        
     }
 
     stages {
@@ -29,7 +29,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=devopsfront'
                 }
             }
         }
