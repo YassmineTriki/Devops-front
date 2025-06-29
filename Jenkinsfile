@@ -28,12 +28,13 @@ pipeline {
             }
         }
 
-        /*stage('Build') {
+        stage('Build') {
             steps {
                 sh 'npm install'
                 sh 'npm run build -- --configuration=production'
+                sh 'ls -al' // Vérifiez le contenu du répertoire
             }
-        }*/
+        }
 
         // Étape 4: Analyse SonarQube
         stage('SonarQube Analysis') {
