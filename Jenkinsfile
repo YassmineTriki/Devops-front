@@ -21,18 +21,18 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        /*stage('Build') {
             steps {
                 sh 'npm install'
                 sh 'npm run build -- --configuration=production'
             }
-        }
+        }*/
 
         // Étape 4: Analyse SonarQube
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                 sh 'npx sonar-scanner'
+                 sh 'npx sonar-scanner -Dsonar.projectKey=devopsfront -Dsonar.sources=src'
                 }
             }
         }
