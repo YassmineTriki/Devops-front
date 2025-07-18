@@ -5,7 +5,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Étape 3 : Copier ton build Angular/Vite/React
-COPY dist/ /usr/share/nginx/html/
+COPY dist/frontend-kaddem2/ /usr/share/nginx/html/
 
 # Étape 4 : Exposer le port (optionnel, pour information)
 EXPOSE 80
